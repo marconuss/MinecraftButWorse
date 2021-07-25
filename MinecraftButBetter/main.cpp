@@ -147,44 +147,45 @@ void CreateObjects()
 		10.0f,	0.0f, 10.0f,	10.0f, 10.0f,	0.0f, -1.0f, 0.0f
 	};
 
+	//define triangles counter-clockwise
 	unsigned int cubeIndices[] = {
 
-		// front
-		0,  2,  3,
-		0,  3,  1,
+		//front
+		0,  2,  3,		//bottom left > top left > top right
+		0,  3,	1,		//bottom left > top right > bottom right
 		// right
 		4,  6,  7,
-		4,  7,  5,
+		4,  7,  5,		
 		// back
 		8,  10, 11,
-		8, 11,  9,
+		8, 11,  9,	
 		// left
 		12, 14, 15,
-		12, 15, 13,
+		12, 15, 13,	
 		// top
 		16, 18, 19,
-		16, 19, 17,
+		16, 19, 17,	
 		// bottom
 		20, 22, 23,
 		20, 23, 21,
-
+		
 	};
 
 	GLfloat cubeVertices[] =
 	{
 		// front
 		//x		y		z		u	  v			normals
-		0.0,	0.0,	1.0,	0.0, 0.33,		0.0, 0.0, -1.0, 	
-		1.0,	0.0,	1.0,	0.0, 0.66,		0.0, 0.0, -1.0,
-		0.0,	1.0,	1.0,	0.25, 0.33,		0.0, 0.0, -1.0,
-		1.0,	1.0,	1.0,	0.25, 0.66,		0.0, 0.0, -1.0,
+		0.0,	0.0,	1.0,	0.0, 0.33,		0.0, 0.0, -1.0, //bottom left
+		1.0,	0.0,	1.0,	0.0, 0.66,		0.0, 0.0, -1.0,	//bottom right
+		0.0,	1.0,	1.0,	0.25, 0.33,		0.0, 0.0, -1.0,	//top left
+		1.0,	1.0,	1.0,	0.25, 0.66,		0.0, 0.0, -1.0,	//top right
 		// right
 		1.0,	0.0,	1.0,	0.25, 1.0,		-1.0, 0.0, 0.0,
 		1.0,	0.0,	0.0,	0.5, 1.0,		-1.0, 0.0, 0.0,
 		1.0,	1.0,	1.0,	0.25, 0.66,		-1.0, 0.0, 0.0,
 		1.0,	1.0,	0.0,	0.5, 0.66,		-1.0, 0.0, 0.0,
 		// back
-		1.0,	0.0,	0.0,	0.75, 0.33,		0.0, 0.0, 1.0, 			
+		1.0,	0.0,	0.0,	0.75, 0.33,		0.0, 0.0, 1.0,			
 		0.0,	0.0,	0.0,	0.75, 0.66,		0.0, 0.0, 1.0,
 		1.0,	1.0,	0.0,	0.5, 0.33,		0.0, 0.0, 1.0,
 		0.0,	1.0,	0.0,	0.5, 0.66,		0.0, 0.0, 1.0,
@@ -246,24 +247,24 @@ void RenderScene()
 
 	//render perlin noise map
 
-	glPushMatrix();
 	for (unsigned int x = 0; x < m_nWidth; x++) {
 		for (unsigned int z = 0; z < m_nHeight; z++) {
-			glPushMatrix();
+			//glPushMatrix();
 
 			model = glm::mat4(1.0f);
 
+			//glTranslatef(-0.5f + (float)x - (float)m_nWidth / 2.0f, -2.5f - (float)m_pData[z * m_nHeight + x], -0.5f - float(z) + (float)m_nHeight / 2.0f);
 			model = glm::translate(model, glm::vec3(-0.5f + (float)x - (float)m_nWidth / 2.0f, -2.5f - (float)m_pData[z * m_nHeight + x], -0.5f - float(z) + (float)m_nHeight / 2.0f));
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			minecraftTexture.UseTexture();
 			shinyMaterial.useMaterial(uniformSpecularIntensity, uniformShininess);
 			cube->RenderMesh();
-			glPopMatrix();
+			//glPopMatrix();
 		}
 	}
 
-	glPopMatrix();
-	glFlush();
+	//glPopMatrix();
+	//glFlush();
 
 }
 
@@ -380,7 +381,7 @@ int main()
 
 	mainLight = CDirectionalLight(2048, 2048,			//shadowbuffer
 									1.0f, 1.0f, 1.0f,	//color
-									0.1f, 0.3f,			//ambientIntensity, diffuseIntensity
+									0.2f, 0.7f,			//ambientIntensity, diffuseIntensity
 									0.0f, -20.0f, -15.0f); //direction
 
 	
