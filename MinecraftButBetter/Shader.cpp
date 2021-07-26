@@ -6,6 +6,7 @@ CShader::CShader()
 	uniformModel = 0;
 	uniformProjection = 0;
 	uniformView = 0;
+	uniformInstanceMatrix = 0;
 
 	pointLightCount = 0;
 	spotLightCount = 0;
@@ -236,6 +237,8 @@ void CShader::CompileProgram()
 		snprintf(locBuff, sizeof(locBuff), "lightMatrices[%d]", i);
 		uniformLightMatrices[i] = glGetUniformLocation(shaderID, locBuff);
 	}
+
+	uniformInstanceMatrix = glGetUniformLocation(shaderID, "instanceMatrix");
 }
 
 GLuint CShader::GetProjectionLocation()
@@ -296,6 +299,11 @@ GLuint CShader::GetOmniLightPosLocation()
 GLuint CShader::GetFarPlaneLocation()
 {
 	return uniformFarPlane;
+}
+
+GLuint CShader::GetInstanceMatrixLocation()
+{
+	return uniformInstanceMatrix;
 }
 
 void CShader::SetDirectionalLight(CDirectionalLight* dLight)
@@ -370,6 +378,7 @@ void CShader::ClearShader()
 	}
 	uniformModel = 0;
 	uniformProjection = 0;
+	uniformInstanceMatrix = 0;
 }
 
 CShader::~CShader()

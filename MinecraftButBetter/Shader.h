@@ -37,6 +37,7 @@ public:
 	GLuint GetShininessLocation();
 	GLuint GetOmniLightPosLocation();
 	GLuint GetFarPlaneLocation();
+	GLuint GetInstanceMatrixLocation();
 
 	void SetDirectionalLight(CDirectionalLight* dLight);
 	void SetPointLights(CPointLight* pLight, unsigned int lightCount);
@@ -59,7 +60,8 @@ private:
 		uniformSpecularIntensity, uniformShininess,
 		uniformTexture,
 		uniformDirectionalLightTransform, uniformDirectionalShadowMap, 
-		uniformOmniLightPos, uniformFarPlane;
+		uniformOmniLightPos, uniformFarPlane, 
+		uniformInstanceMatrix;
 
 	GLuint uniformLightMatrices[6];
 
