@@ -187,7 +187,10 @@ void CreateObjects()
 
 	m_pData = (unsigned char*)malloc(m_nWidth * m_nHeight);
 
-	unsigned int seed = 120;
+	srand(time(NULL));
+
+	unsigned int levelHeight = 6;
+	unsigned int seed = rand() % 100;
 	CPerlinNoise pn(seed);
 
 	unsigned int inc = 0;
@@ -201,7 +204,7 @@ void CreateObjects()
 
 			double n = pn.noise(5 * x, 5 * y, 0.8);
 
-			m_pData[inc] = (unsigned char)floor(26 * n); // 26 in this exmaple defines the height of the level
+			m_pData[inc] = (unsigned char)floor(levelHeight * n); // 26 in this exmaple defines the height of the level
 
 			inc++;
 		}
