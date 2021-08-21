@@ -20,7 +20,7 @@ CDirectionalLight::CDirectionalLight(GLfloat shadowWidth, GLfloat shadowHeight,
 void CDirectionalLight::UseLight(GLuint ambientIntensityLocation, GLuint ambientColorLocation,
 	GLuint diffuseIntensityLocation, GLuint directionLocation)
 {
-	//bind the color to the light ID
+	//bind the color and intensity to the light ID
 	glUniform1f(ambientIntensityLocation, ambientIntensity);
 	glUniform3f(ambientColorLocation, color.x, color.y, color.z);
 

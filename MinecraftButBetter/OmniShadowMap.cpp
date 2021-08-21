@@ -52,11 +52,11 @@ bool OmniShadowMap::Init(unsigned int width, unsigned int height)
 void OmniShadowMap::Write()
 {
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBO);
-
 }
 
 void OmniShadowMap::Read(GLenum textureUnit)
 {
+	//read shadowmap
 	glActiveTexture(textureUnit);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMap);
 }

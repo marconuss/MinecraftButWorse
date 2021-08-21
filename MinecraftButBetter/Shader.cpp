@@ -108,6 +108,8 @@ void CShader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	CompileProgram();
 	
 }
+
+
 void CShader::CompileShader(const char* vertexCode, const char* geometryCode, const char* fragmentCode)
 {
 	shaderID = glCreateProgram();
@@ -158,6 +160,9 @@ void CShader::CompileProgram()
 
 
 	//get the location or ID of the uniform variable
+	// ---------------------------------------
+	//!!!!watch out the string must be the same as the name of the variable in the shader!!!!
+	// ---------------------------------------
 	uniformModel = glGetUniformLocation(shaderID, "model");
 	uniformProjection = glGetUniformLocation(shaderID, "projection");
 	uniformView = glGetUniformLocation(shaderID, "view");

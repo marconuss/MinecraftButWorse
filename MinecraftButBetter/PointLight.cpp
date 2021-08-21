@@ -39,7 +39,7 @@ void CPointLight::UseLight(GLuint ambientIntensityLocation, GLuint ambientColorL
 							GLuint diffuseIntensityLocation, GLuint positionLocation, 
 							GLuint constantLocation, GLuint linearLocation, GLuint exponentLocation)
 {
-	//bind the color to the light ID
+	//bind the information to the light ID
 	glUniform1f(ambientIntensityLocation, ambientIntensity);
 	glUniform3f(ambientColorLocation, color.x, color.y, color.z);
 	glUniform1f(diffuseIntensityLocation, diffuseIntensity);

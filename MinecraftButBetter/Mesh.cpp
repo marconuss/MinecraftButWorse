@@ -42,22 +42,24 @@ void CMesh::CreateMesh(GLfloat* vertices, unsigned int* indices, unsigned int nu
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//unbind the VAO
 	glBindVertexArray(0);
-	//unbind the IBO last, because we want it attached to the vao till the end
+	//unbind the IBO last, because we want it attached to the VAO till the end
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void CMesh::RenderMesh()
 {
-
 	//enable culling for better performance 
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_FRONT);
 
+	//draw mesh
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	int size;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 	glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_INT, 0);
+
+	//unbind
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }

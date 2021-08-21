@@ -145,13 +145,12 @@ void CWindow::handleMouse(GLFWwindow* window, double xPos, double yPos)
 		myWindow->mouseFirstMoved = false;
 	}
 	myWindow->xChange = xPos - myWindow->lastX;
-	//the pitch is usally inverted when looking up and down
+	// I like the pitch to be inverted when looking up and down
 	myWindow->yChange = myWindow->lastY - yPos;
 	
 	myWindow->lastX = xPos;
 	myWindow->lastY = yPos;
 
-	//printf("x:%.6f, y:%.6f\n", myWindow->xChange, myWindow->yChange);
 }
 
 

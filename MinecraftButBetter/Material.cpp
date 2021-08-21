@@ -14,6 +14,7 @@ CMaterial::CMaterial(GLfloat sIntensity, GLfloat shine)
 
 void CMaterial::useMaterial(GLuint specularIntensityLocation, GLuint shininessLocation)
 {
+	//assing intesity and shininess
 	glUniform1f(specularIntensityLocation, specularIntensity);
 	glUniform1f(shininessLocation, shininess);
 

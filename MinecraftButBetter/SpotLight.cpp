@@ -41,6 +41,7 @@ void CSpotLight::UseLight(GLuint ambientIntensityLocation, GLuint ambientColorLo
 
 void CSpotLight::SetFlash(glm::vec3 pos, glm::vec3 dir)
 {
+	//use the spotlight as a flashlight
 	position = pos;
 	direction = dir;
 }

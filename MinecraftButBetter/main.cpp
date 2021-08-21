@@ -25,9 +25,7 @@
 #include "Texture.h"
 #include "Window.h"
 
-
-const float toRadians = 3.14159265f / 180.0f;
-
+//declaration of all the uniforms
 GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 uniformSpecularIntensity = 0, uniformShininess = 0, uniformOmniLightPos = 0, uniformFarPlane = 0;
 
@@ -35,26 +33,26 @@ uniformSpecularIntensity = 0, uniformShininess = 0, uniformOmniLightPos = 0, uni
 CWindow mainWindow;
 
 //shaders
-//list of shaders for the scene itself
+//
+// list of shaders for the scene itself
 std::vector<CShader> shaderList;
-//first pass for the dierctional shadow
+// first pass for the dierctional shadow
 CShader directionalShadowShader;
 // first two passes for point lights and spot lights
 CShader omniShadowShader;
-//Vertex shaderID
+// Vertex shaderID
 static const char* vShader = "../Shaders/shader.vert";
-
-//Fragment shaderID
+// Fragment shaderID
 static const char* fShader = "../Shaders/shader.frag";
 
-//camera
+// camera
 CCamera camera;
 
-//textures
+// textures
 CTexture minecraftTexture;
-//materials
+
+// materials
 CMaterial shinyMaterial; 
-CMaterial dullMaterial;
 
 //lights
 CDirectionalLight mainLight;
@@ -179,24 +177,25 @@ void CreateObjects()
 
 	CalcAverageNormals(cubeIndices, 36, cubeVertices, 192, 8, 5);
 
+	// create the cube mesh
 	cube = new CMesh();
 	cube->CreateMesh(cubeVertices, cubeIndices, 192, 36);
 
 
 	//generate terrain with perlin noise 
-
 	m_pData = (unsigned char*)malloc(m_nWidth * m_nHeight);
 
 	srand(time(NULL));
 
-	unsigned int levelHeight = 6;
+	//max level height
+	unsigned int levelHeight = 15;
+	//random seed
 	unsigned int seed = rand() % 100;
 	CPerlinNoise pn(seed);
 
 	unsigned int inc = 0;
 
 	// Fill the grid with values from the noise function
-
 	for (unsigned int i = 0; i < m_nHeight; ++i) {     // y
 		for (unsigned int j = 0; j < m_nWidth; ++j) {  // x
 			double x = (double)j / ((double)m_nWidth);
@@ -204,7 +203,7 @@ void CreateObjects()
 
 			double n = pn.noise(5 * x, 5 * y, 0.8);
 
-			m_pData[inc] = (unsigned char)floor(levelHeight * n); // 26 in this exmaple defines the height of the level
+			m_pData[inc] = (unsigned char)floor(levelHeight * n); 
 
 			inc++;
 		}
@@ -213,6 +212,7 @@ void CreateObjects()
 
 void CreateShaders()
 {
+	//create shader
 	CShader *shaderOne = new CShader();
 	shaderOne->CreateFromFiles(vShader, fShader);
 	shaderList.push_back(*shaderOne);
@@ -228,42 +228,23 @@ void CreateLights()
 {
 	//main directional light: 
 
-	mainLight = CDirectionalLight(2048, 2048,			//shadowbuffer
-		1.0f, 1.0f, 1.0f,	//color
-		0.2f, 0.7f,			//ambientIntensity, diffuseIntensity
-		0.0f, -20.0f, -15.0f); //direction
+	mainLight = CDirectionalLight(2048, 2048,	//shadowbuffer
+		1.0f, 1.0f, 1.0f,						//color
+		0.2f, 0.7f,								//ambientIntensity, diffuseIntensity
+		0.0f, -20.0f, -15.0f);					//direction
 
 
-//point lights: 
-// 
-//pointLights[0] = CPointLight(1024, 1024,			//shadowWidth, shadowHeight
-//								0.01f, 100,			//near far plane
-//								0.0f, 0.0f, 1.0f,	//color 
-//								0.0f, 0.1f,			//ambientIntensity, diffuseIntensity
-//								4.0, 0.0f, 0.0f,	//light position
-//								0.3f, 0.2f, 0.1f);	//quadratic equation values
-//pointLightCount++;
-//
-//pointLights[1] = CPointLight(1024, 1024,			//shadowWidth, shadowHeight
-//								0.01f, 100,			//far plane
-//								0.0f, 1.0f, 0.0f,		//color 
-//								0.0f, 0.1f,			//ambientIntensity, diffuseIntensity
-//								-4.0, 2.0f, 0.0f,	//light position
-//								0.3f, 0.1f, 0.1f);	//quadratic equation values
-//pointLightCount++;
+	// spot light: 
 
-
-
-// spot light: 
-
-	spotLights[0] = CSpotLight(1024, 1024,			//shadowWidth, shadowHeight
-		0.01f, 100,			//near far plane
-		1.0f, 1.0f, 1.0f,	//color
-		0.0f, 1.0f,			//ambientIntensity, diffuseIntensity
-		0.0, 0.0f, 0.0f,	//light position
-		0.0f, -1.0f, 0.0f,	//spotLight direction
-		1.0f, 0.f, 0.0f,	//quadratic equation values
-		20.f);				//edge = angle of the spotlight
+	spotLights[0] = CSpotLight(1024, 1024,		//shadowWidth, shadowHeight
+		0.01f, 100,								//near far plane
+		1.0f, 1.0f, 1.0f,						//color
+		0.0f, 1.0f,								//ambientIntensity, diffuseIntensity
+		0.0, 0.0f, 0.0f,						//light position
+		0.0f, -1.0f, 0.0f,						//spotLight direction
+		1.0f, 0.f, 0.0f,						//quadratic equation values
+		20.f);									//edge = angle of the spotlight
+	//add to the spotlights count
 	spotLightCount++;
 }
 
@@ -281,8 +262,11 @@ void RenderScene()
 	//shinyMaterial.useMaterial(uniformSpecularIntensity, uniformShininess);
 	//cube->RenderMesh();
 
-	//render perlin noise map
-
+	// render perlin noise map
+	//----------------------------
+	// it renders each cube 
+	// should be changed
+	//----------------------------
 	for (unsigned int x = 0; x < m_nWidth; x++) {
 		for (unsigned int z = 0; z < m_nHeight; z++) {
 
@@ -299,7 +283,6 @@ void RenderScene()
 	}
 
 }
-
 
 
 void DirectionalShadowMapPass(CDirectionalLight* light)
@@ -370,6 +353,7 @@ void RenderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 	glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
+	// render lights in the scene
 	shaderList[0].SetDirectionalLight(&mainLight);
 	shaderList[0].SetPointLights(pointLights, pointLightCount);
 	shaderList[0].SetSpotLights(spotLights, spotLightCount);
@@ -393,6 +377,7 @@ void RenderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 
 int main()
 {
+	//initialize window
 	mainWindow = CWindow(1366, 768);
 	mainWindow.Initialize();
 
@@ -400,20 +385,20 @@ int main()
 	CreateShaders();
 	CreateLights();
 
+	//initialize the camera
 	camera = CCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.5f);
 
-	//load textures to memory
-	//cube texture
+	//load textures 
 	minecraftTexture = CTexture("../Textures/cube2.png");
 	minecraftTexture.LoadTextureAlpha();
-
+	//set material properties
 	shinyMaterial = CMaterial(4.0f, 256);
-	dullMaterial = CMaterial(0.1f, 2);
 
 	//projection matrix: 
 	glm::mat4 projection(1.0f);
 	projection = glm::perspective(glm::radians(60.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
+	//set up time for frame time count
 	GLfloat frameTime = glfwGetTime();
 	int nbFrames = 0;
 	
@@ -421,12 +406,13 @@ int main()
 	while (!mainWindow.getShouldClose())
 	{
 
-		//glfwGetTime returns time in seconds
+		// glfwGetTime returns time in seconds
 		GLfloat currentTime = glfwGetTime();
+		// get the delta time since last frame
 		deltaTime = currentTime - lastTime;
 		lastTime = currentTime;
 
-		//fps counter 
+		//frame time counter
 		nbFrames++;
 		if (currentTime - frameTime >= 1.0) { // If last prinf() was more than 1 sec ago
 		// printf and reset timer
@@ -438,6 +424,7 @@ int main()
 		// get and handle user input events
 		glfwPollEvents();
 
+		//camera controls
 		camera.keyControl(mainWindow.getKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
@@ -454,17 +441,15 @@ int main()
 			OmniShadowMapPass(&spotLights[i]);
 		}
 		
-
+		// render game
 		RenderPass(projection, camera.calculateViewMatrix());
 
-		//use the shaderID
+		//use the shader
 		shaderList[0].UseShader();
 
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();
-
-
 	}
 
 	return 0;

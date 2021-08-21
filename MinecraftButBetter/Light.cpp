@@ -9,6 +9,7 @@ CLight::CLight()
 
 CLight::CLight(GLfloat shadowWidth, GLfloat shadowHeight, GLfloat red, GLfloat green, GLfloat blue, GLfloat aIntensity, GLfloat dIntensity)
 {
+	//initialize shadowmap
 	shadowMap = new CShadowMap();
 	shadowMap->Init(shadowWidth, shadowHeight);
 
