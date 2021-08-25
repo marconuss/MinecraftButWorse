@@ -50,6 +50,9 @@ CCamera camera;
 
 // textures
 CTexture minecraftTexture;
+CTexture minecraftTextureS;
+CTexture minecraftTextureW;
+CTexture minecraftTextureI;
 
 // materials
 CMaterial shinyMaterial; 
@@ -72,6 +75,8 @@ CMesh* cube;
 unsigned int m_nWidth = 128;
 unsigned int m_nHeight = 128;
 unsigned char* m_pData;
+unsigned char* m_tData;
+unsigned int waterlevel = 9;
 
 //averaging the normals
 //-------
@@ -184,6 +189,7 @@ void CreateObjects()
 
 	//generate terrain with perlin noise 
 	m_pData = (unsigned char*)malloc(m_nWidth * m_nHeight);
+	m_tData = (unsigned char*)malloc(m_nWidth * m_nHeight);
 
 	srand(time(NULL));
 
@@ -204,6 +210,20 @@ void CreateObjects()
 			double n = pn.noise(5 * x, 5 * y, 0.8);
 
 			m_pData[inc] = (unsigned char)floor(levelHeight * n); 
+			m_tData[inc] = 0;
+
+			if (m_pData[inc] > waterlevel) {
+				m_pData[inc] = waterlevel;
+				m_tData[inc] = 1;
+			}
+
+			if (m_pData[inc] == (waterlevel) && m_tData[inc] != 1){
+				m_tData[inc] = 2;
+			}
+
+			if (m_pData[inc] < 4) {
+				m_tData[inc] = 3;
+			}
 
 			inc++;
 		}
@@ -271,11 +291,23 @@ void RenderScene()
 		for (unsigned int z = 0; z < m_nHeight; z++) {
 
 			model = glm::mat4(1.0f);
-
+			
 			//glTranslatef(-0.5f + (float)x - (float)m_nWidth / 2.0f, -2.5f - (float)m_pData[z * m_nHeight + x], -0.5f - float(z) + (float)m_nHeight / 2.0f);
 			model = glm::translate(model, glm::vec3(-0.5f + (float)x - (float)m_nWidth / 2.0f, -2.5f - (float)m_pData[z * m_nHeight + x], -0.5f - float(z) + (float)m_nHeight / 2.0f));
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			minecraftTexture.UseTexture();
+			if (m_tData[z * m_nHeight + x] == 0) {
+				minecraftTexture.UseTexture();
+			}
+			if (m_tData[z * m_nHeight + x] == 1) {
+				minecraftTextureW.UseTexture();
+			}
+			if (m_tData[z * m_nHeight + x] == 2) {
+				minecraftTextureS.UseTexture();
+			}
+			if (m_tData[z * m_nHeight + x] == 3) {
+				minecraftTextureI.UseTexture();
+			}
+			
 			shinyMaterial.useMaterial(uniformSpecularIntensity, uniformShininess);
 			cube->RenderMesh();
 
@@ -391,6 +423,12 @@ int main()
 	//load textures 
 	minecraftTexture = CTexture("../Textures/cube2.png");
 	minecraftTexture.LoadTextureAlpha();
+	minecraftTextureI = CTexture("../Textures/ice.png");
+	minecraftTextureI.LoadTextureAlpha();
+	minecraftTextureW = CTexture("../Textures/water.png");
+	minecraftTextureW.LoadTextureAlpha();
+	minecraftTextureS = CTexture("../Textures/sand.png");
+	minecraftTextureS.LoadTextureAlpha();
 	//set material properties
 	shinyMaterial = CMaterial(4.0f, 256);
 
