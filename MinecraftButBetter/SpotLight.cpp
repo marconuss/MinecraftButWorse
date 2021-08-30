@@ -7,14 +7,12 @@ CSpotLight::CSpotLight()
 	procEdge = cosf(glm::radians(edge));
 }
 
-CSpotLight::CSpotLight(GLuint shadowWidth, GLuint shadowHeight,
-						GLfloat near, GLfloat far, 
-						GLfloat red, GLfloat green, GLfloat blue,
+CSpotLight::CSpotLight(GLfloat red, GLfloat green, GLfloat blue,
 						GLfloat aIntensity, GLfloat dIntensity, 
 						GLfloat xPos, GLfloat yPos, GLfloat zPos, 
 						GLfloat xDir, GLfloat yDir, GLfloat zDir, 
 						GLfloat con, GLfloat lin, GLfloat exp, 
-						GLfloat edg) : CPointLight(shadowWidth, shadowHeight, near, far, red, green, blue, aIntensity, dIntensity, xPos, yPos, zPos, con, lin, exp)
+						GLfloat edg) : CPointLight(red, green, blue, aIntensity, dIntensity, xPos, yPos, zPos, con, lin, exp)
 {
 	direction = glm::normalize(glm::vec3(xDir, yDir, zDir));
 	edge = edg;

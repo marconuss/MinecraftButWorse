@@ -28,7 +28,7 @@
 
 //declaration of all the uniforms
 GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
-uniformSpecularIntensity = 0, uniformShininess = 0, uniformOmniLightPos = 0, uniformFarPlane = 0;
+uniformSpecularIntensity = 0, uniformShininess = 0;
 
 //window
 CWindow mainWindow;
@@ -39,8 +39,6 @@ CWindow mainWindow;
 std::vector<CShader> shaderList;
 // first pass for the dierctional shadow
 CShader directionalShadowShader;
-// first two passes for point lights and spot lights
-CShader omniShadowShader;
 // Vertex shaderID
 static const char* vShader = "../Shaders/shader.vert";
 // Fragment shaderID
@@ -203,31 +201,28 @@ void CreateShaders()
 
 	directionalShadowShader = CShader();
 	directionalShadowShader.CreateFromFiles("../Shaders/directional_shadow_map.vert", "../Shaders/directional_shadow_map.frag");
-	omniShadowShader = CShader();
-	omniShadowShader.CreateFromFiles("../Shaders/omni_shadow_map.vert", "../Shaders/omni_shadow_map.geom",  "../Shaders/omni_shadow_map.frag");
-
 }
 
 void CreateLights()
 {
 	//main directional light: 
 
-	mainLight = CDirectionalLight(2048, 2048,	//shadowbuffer
-		1.0f, 1.0f, 1.0f,						//color
-		0.2f, 0.7f,								//ambientIntensity, diffuseIntensity
-		0.0f, -20.0f, -15.0f);					//direction
+	mainLight = CDirectionalLight(
+				2048, 2048,					//shadowbuffer
+				1.0f, 1.0f, 1.0f,			//color
+				0.2f, 0.7f,					//ambientIntensity, diffuseIntensity
+				0.0f, -20.0f, -15.0f);		//direction
 
 
 	// spot light: 
 
-	spotLights[0] = CSpotLight(1024, 1024,		//shadowWidth, shadowHeight
-		0.01f, 100,								//near far plane
-		1.0f, 1.0f, 1.0f,						//color
-		0.0f, 1.0f,								//ambientIntensity, diffuseIntensity
-		0.0, 0.0f, 0.0f,						//light position
-		0.0f, -1.0f, 0.0f,						//spotLight direction
-		1.0f, 0.f, 0.0f,						//quadratic equation values
-		20.f);									//edge = angle of the spotlight
+	spotLights[0] = CSpotLight(
+				1.0f, 1.0f, 1.0f,			//color
+				0.0f, 1.0f,					//ambientIntensity, diffuseIntensity
+				0.0, 0.0f, 0.0f,			//light position
+				0.0f, -1.0f, 0.0f,			//spotLight direction
+				1.0f, 0.f, 0.0f,			//quadratic equation values
+				20.f);						//edge = angle of the spotlight
 	//add to the spotlights count
 	spotLightCount++;
 }
@@ -297,35 +292,11 @@ void DirectionalShadowMapPass(CDirectionalLight* light)
 	glm::mat4 lightTransform = light->CalculateLightTransform();
 	directionalShadowShader.SetDirectionalLightTransform(&lightTransform);
 
-	//RenderScene();
+	RenderScene();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OmniShadowMapPass(CPointLight* light)
-{
-	omniShadowShader.UseShader();
-
-	//add the shadow map to the main light
-	glViewport(0, 0, light->GetShadowMap()->GetShadowWidth(), light->GetShadowMap()->GetShadowHeight());
-
-	light->GetShadowMap()->Write();
-	//clear all te depth buffer information
-	glClear(GL_DEPTH_BUFFER_BIT);
-
-	//projection and view calculation 
-	uniformModel = omniShadowShader.GetModelLocation();
-	uniformOmniLightPos = omniShadowShader.GetOmniLightPosLocation();
-	uniformFarPlane = omniShadowShader.GetFarPlaneLocation();
-
-	glUniform3f(uniformOmniLightPos, light->GetPosition().x, light->GetPosition().y, light->GetPosition().z);
-	glUniform1f(uniformFarPlane, light->GetFarPlane());
-	omniShadowShader.SetLightMatrices(light->CalculateLightTransform());
-
-	//RenderScene();
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
 
 
 void RenderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
@@ -386,6 +357,8 @@ int main()
 
 	//skybox
 	std::vector<std::string> skyboxFaces;
+
+	//load teh texture for each face
 	//the order matters and it is +x, -x, +y, -y, +z, -z
 	skyboxFaces.push_back("../Textures/Skybox/skybox_right.tga");
 	skyboxFaces.push_back("../Textures/Skybox/skybox_left.tga");
@@ -447,17 +420,7 @@ int main()
 
 		//update the shadowmap for the main light
 		DirectionalShadowMapPass(&mainLight);
-		
-		for (size_t i = 0; i < pointLightCount; i++)
-		{
-			OmniShadowMapPass(&pointLights[i]);
-		}
 
-		for (size_t i = 0; i < spotLightCount; i++)
-		{
-			OmniShadowMapPass(&spotLights[i]);
-		}
-		
 		// render game
 		RenderPass(projection, camera.calculateViewMatrix());
 

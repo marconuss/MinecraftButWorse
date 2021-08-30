@@ -27,17 +27,6 @@ void CShader::CreateFromFiles(const char* vertexLocation, const char* fragmentLo
 	CompileShader(vertexCode, fragmentCode);
 }
 
-void CShader::CreateFromFiles(const char* vertexLocation, const char* geometryLocation, const char* fragmentLocation)
-{
-	std::string vertexString = ReadFile(vertexLocation);
-	std::string geometryString = ReadFile(geometryLocation);
-	std::string fragmentString = ReadFile(fragmentLocation);
-	const char* vertexCode = vertexString.c_str();
-	const char* geometryCode = geometryString.c_str();
-	const char* fragmentCode = fragmentString.c_str();
-
-	CompileShader(vertexCode, geometryCode, fragmentCode);
-}
 
 std::string CShader::ReadFile(const char* fileLocation)
 {
@@ -109,26 +98,6 @@ void CShader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	
 }
 
-
-void CShader::CompileShader(const char* vertexCode, const char* geometryCode, const char* fragmentCode)
-{
-	shaderID = glCreateProgram();
-
-	//check if the shaderID is working
-	if (!shaderID) {
-		printf("error creating shader program!\n");
-		return;
-	}
-
-	//Add the vertex and fragment shaders
-	//GL_VERTEX_SHADER is the enum that says which shaderID it is
-	AddShader(shaderID, vertexCode, GL_VERTEX_SHADER);
-	AddShader(shaderID, geometryCode, GL_GEOMETRY_SHADER);
-	AddShader(shaderID, fragmentCode, GL_FRAGMENT_SHADER);
-
-	CompileProgram();
-
-}
 
 void CShader::CompileProgram()
 {
@@ -232,17 +201,6 @@ void CShader::CompileProgram()
 	uniformDirectionalLightTransform = glGetUniformLocation(shaderID, "directionalLightSpaceTransform");
 	uniformDirectionalShadowMap = glGetUniformLocation(shaderID, "directionalShadowMap");
 
-	uniformOmniLightPos = glGetUniformLocation(shaderID, "lightPos");
-	uniformFarPlane = glGetUniformLocation(shaderID, "farPlane");
-
-	for (size_t i = 0; i < 6; i++)
-	{
-		char locBuff[100] = { '\0' };
-
-		snprintf(locBuff, sizeof(locBuff), "lightMatrices[%d]", i);
-		uniformLightMatrices[i] = glGetUniformLocation(shaderID, locBuff);
-	}
-
 	uniformInstanceMatrix = glGetUniformLocation(shaderID, "instanceMatrix");
 }
 
@@ -294,16 +252,6 @@ GLuint CShader::GetSpecularIntensityLocation()
 GLuint CShader::GetShininessLocation()
 {
 	return uniformShininess;
-}
-
-GLuint CShader::GetOmniLightPosLocation()
-{
-	return uniformOmniLightPos;
-}
-
-GLuint CShader::GetFarPlaneLocation()
-{
-	return uniformFarPlane;
 }
 
 GLuint CShader::GetInstanceMatrixLocation()
@@ -361,13 +309,6 @@ void CShader::SetDirectionalLightTransform(glm::mat4* lTransform)
 	glUniformMatrix4fv(uniformDirectionalLightTransform, 1, GL_FALSE, glm::value_ptr(*lTransform));
 }
 
-void CShader::SetLightMatrices(std::vector<glm::mat4> lightMatrices)
-{
-	for (size_t i = 0; i < 6; i++)
-	{
-		glUniformMatrix4fv(uniformLightMatrices[i], 1, GL_FALSE, glm::value_ptr(lightMatrices[i]));
-	}
-}
 
 void CShader::UseShader()
 {
