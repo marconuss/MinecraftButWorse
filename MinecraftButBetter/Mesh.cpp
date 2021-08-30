@@ -81,7 +81,6 @@ void CMesh::ClearMesh()
 		glDeleteVertexArrays(1, &VAO);
 		VAO = 0;
 	}
-
 	//indexCount = 0;
 }
 

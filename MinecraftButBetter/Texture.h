@@ -2,7 +2,7 @@
 
 #include <gl/glew.h>
 
-#include "stb_image.h"
+#include "CommonValues.h"
 
 class CTexture
 {

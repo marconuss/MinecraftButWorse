@@ -21,6 +21,7 @@
 #include "PerlinNoise.h"
 #include "PointLight.h"
 #include "Shader.h"
+#include "Skybox.h"
 #include "SpotLight.h"
 #include "Texture.h"
 #include "Window.h"
@@ -64,6 +65,9 @@ CSpotLight spotLights[MAX_SPOT_LIGHTS];
 unsigned int pointLightCount = 0;
 unsigned int spotLightCount = 0;
 
+//skybox
+CSkybox skybox;
+
 //time
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
@@ -78,44 +82,6 @@ unsigned char* m_pData;
 unsigned char* m_tData;
 unsigned int waterlevel = 9;
 
-//averaging the normals
-//-------
-//loop through the vertices of each triangle
-//calculate the distance between the vertices
-//get the cross product for the angle to find the normal
-//normalize it 
-// -----------
-// loop through the normal vectors and fill in the normalized normals
-void CalcAverageNormals(unsigned int* indices, unsigned int indicesCount, GLfloat* vertices, unsigned int verticesCount, 
-						unsigned int vLenght, unsigned int normalOffset)
-{
-	//for loop jumps from triangle to trinagle 
-	for (size_t i = 0; i < indicesCount; i+=3)
-	{
-		unsigned int in0 = indices[i] * vLenght;
-		unsigned int in1 = indices[i+1] * vLenght;
-		unsigned int in2 = indices[i+2] * vLenght;
-
-		// v1 = in1.x - in0.x, in1.y - in0.y, in1.z - in0.z
-		glm::vec3 v1(vertices[in1] - vertices[in0], vertices[in1 + 1] - vertices[in0 + 1], vertices[in1 + 2] - vertices[in0 + 2]);
-		glm::vec3 v2(vertices[in2] - vertices[in0], vertices[in2 + 1] - vertices[in0 + 1], vertices[in2 + 2] - vertices[in0 + 2]);
-		glm::vec3 normal = glm::cross(v1, v2);
-		normal = glm::normalize(normal);
-
-		in0 += normalOffset; in1 += normalOffset, in2 += normalOffset;
-		vertices[in0] += normal.x; vertices[in0 + 1] += normal.y; vertices[in0 + 2] += normal.z;
-		vertices[in1] += normal.x; vertices[in1 + 1] += normal.y; vertices[in1 + 2] += normal.z;
-		vertices[in2] += normal.x; vertices[in2 + 1] += normal.y; vertices[in2 + 2] += normal.z;
-	}
-
-	for (size_t i = 0; i < verticesCount/vLenght; i++)
-	{
-		unsigned int nOffset = i * vLenght + normalOffset;
-		glm::vec3 vec(vertices[nOffset], vertices[nOffset + 1], vertices[nOffset + 2]);
-		vec = glm::normalize(vec);
-		vertices[nOffset] = vec.x; vertices[nOffset + 1] = vec.y; vertices[nOffset + 2] = vec.z;
-	}
-}
 
 void CreateObjects() 
 {
@@ -124,23 +90,23 @@ void CreateObjects()
 	unsigned int cubeIndices[] = {
 
 		//front
-		0,  2,  3,		//bottom left > top left > top right
-		0,  3,	1,		//bottom left > top right > bottom right
+		2,  0,  3,		//bottom left > top left > top right
+		3,  0,	1,		//bottom left > top right > bottom right
 		// right
-		4,  6,  7,
-		4,  7,  5,		
+		6,  4,  7,
+		7,  4,  5,		
 		// back
-		8,  10, 11,
-		8, 11,  9,	
+		10,  8, 11,
+		11,	 8,  9,	
 		// left
-		12, 14, 15,
-		12, 15, 13,	
+		14, 12, 15,
+		15, 12, 13,	
 		// top
-		16, 18, 19,
-		16, 19, 17,	
+		18, 16, 19,
+		19, 16, 17,	
 		// bottom
-		20, 22, 23,
-		20, 23, 21,
+		22, 20, 23,
+		23, 20, 21,
 		
 	};
 
@@ -179,8 +145,6 @@ void CreateObjects()
 		1.0,	0.0,	0.0,	0.75, 0.33,		0.0, 1.0, 0.0,
 
 	};
-
-	CalcAverageNormals(cubeIndices, 36, cubeVertices, 192, 8, 5);
 
 	// create the cube mesh
 	cube = new CMesh();
@@ -366,6 +330,15 @@ void OmniShadowMapPass(CPointLight* light)
 
 void RenderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 {
+
+	glViewport(0, 0, 1366, 768);
+
+	//clear window
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	skybox.DrawSkybox(viewMatrix, projectionMatrix);
+
 	shaderList[0].UseShader();
 
 	uniformModel = shaderList[0].GetModelLocation();
@@ -374,12 +347,6 @@ void RenderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 	uniformEyePosition = shaderList[0].GetEyePositionLocation();
 	uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
 	uniformShininess = shaderList[0].GetShininessLocation();
-
-	glViewport(0, 0, 1366, 768);
-
-	//clear window
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 	glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
@@ -416,6 +383,18 @@ int main()
 	CreateObjects();
 	CreateShaders();
 	CreateLights();
+
+	//skybox
+	std::vector<std::string> skyboxFaces;
+	//the order matters and it is +x, -x, +y, -y, +z, -z
+	skyboxFaces.push_back("../Textures/Skybox/skybox_right.tga");
+	skyboxFaces.push_back("../Textures/Skybox/skybox_left.tga");
+	skyboxFaces.push_back("../Textures/Skybox/skybox_top.tga");
+	skyboxFaces.push_back("../Textures/Skybox/skybox_bottom.tga");
+	skyboxFaces.push_back("../Textures/Skybox/skybox_front.tga");
+	skyboxFaces.push_back("../Textures/Skybox/skybox_back.tga");
+
+	skybox = CSkybox(skyboxFaces);
 
 	//initialize the camera
 	camera = CCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.5f);
